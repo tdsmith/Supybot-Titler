@@ -108,7 +108,7 @@ class Titler(callbacks.Plugin):
         self.headers = {'User-agent': 'Mozilla/5.0 (Windows NT 6.1; rv:15.0) Gecko/20120716 Firefox/15.0a2'}
         # longurl stuff
         self.longUrlCacheTime = time.time()
-        self.longUrlServices = None
+        self.longUrlServices = []
         self._getlongurlservices()  # initial fetch.
         # bitly.
         self.bitlylogin = self.registryValue('bitlyLogin')
@@ -119,10 +119,10 @@ class Titler(callbacks.Plugin):
         self.domainparsers = {
             'vimeo.com': '_vimeotitle',
             'player.vimeo.com': '_vimeotitle',
-            'm.youtube.com': '_yttitle',
-            'www.youtube.com': '_yttitle',
-            'youtube.com': '_yttitle',
-            'youtu.be': '_yttitle',
+            #'m.youtube.com': '_yttitle',
+            #'www.youtube.com': '_yttitle',
+            #'youtube.com': '_yttitle',
+            #'youtu.be': '_yttitle',
             #'i.imgur.com': '_imgur',
             #'imgur.com': '_imgur',
             'gist.github.com': '_gist',
@@ -341,7 +341,8 @@ class Titler(callbacks.Plugin):
 
     def _getlongurlservices(self):
         """Function to maintain list of shorturl services for resolving with cache."""
-
+        self.longUrlServices = []
+        return
         if self.longUrlServices and abs(time.time()-self.longUrlCacheTime) < 86400:
             self.log.info("longurlservices: Just returning..")
             # we have services and they're within the cache period.
@@ -509,7 +510,7 @@ class Titler(callbacks.Plugin):
         elif contentdict['type'].startswith('text/'):
             # wrap the whole thing because who the hell knows wtf will happen.
             try:  # try to parse w/BS + encode properly.
-                soup = BeautifulSoup(content.text, from_encoding=charset)
+                soup = BeautifulSoup(content.text)# , from_encoding=charset)
                 #soup = unicode(soup)  # convert html entities.
                 #self.log.info("{0}".format(soup))
                 title = self._cleantitle(soup.title.string)
@@ -542,7 +543,8 @@ class Titler(callbacks.Plugin):
                     return title.encode('utf-8', 'ignore')
                 # now take the the possible 'title and 'gd' above and return.
             except Exception, e:
-                self.log.error("_fetchtitle: ERROR: Could not parse title of: {0} - {1}".format(url, e))
+                import traceback
+                self.log.error("_fetchtitle: ERROR: Could not parse title of: {0} - {1}\n{2}".format(url, e, traceback.format_exc()))
                 return None
         # handle any other filetype using libmagic.
         else:

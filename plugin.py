@@ -132,7 +132,8 @@ class Titler(callbacks.Plugin):
             'blip.tv': '_bliptitle',
             'vine.co': '_vinetitle',
             'reddit.com': '_reddit',
-            'www.reddit.com': '_reddit'
+            'www.reddit.com': '_reddit',
+            'twitter.com': '_twitter',
             }
 
     def die(self):
@@ -857,6 +858,13 @@ class Titler(callbacks.Plugin):
                 return None
         # now return.
         return "Vine Video: {0}".format(o)
+
+    def _twitter(self, url):
+        lookup = self._openurl(url)
+        soup = BeautifulSoup(lookup)
+        embed = soup.find("link", {"type": "application/json+oembed"})
+        return embed["title"]
+
 
     def _bliptitle(self, url):
         """Fetch information for blip.tv"""

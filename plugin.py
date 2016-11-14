@@ -863,7 +863,7 @@ class Titler(callbacks.Plugin):
         lookup = self._openurl(url)
         soup = BeautifulSoup(lookup)
         embed = soup.find("link", {"type": "application/json+oembed"})
-        return embed["title"]
+        return embed["title"].encode("utf-8", "ignore")
 
 
     def _bliptitle(self, url):
